@@ -4,7 +4,7 @@ This sample solution includes 2 [State machines](https://docs.aws.amazon.com/ste
 
 1. Single AWS service backup workflow
 
-![Alt text](https://github.com/sanket-bengali/aws-backup-step-functions/blob/master/images/Neo4j%20backup%20WF.png&raw=True "Custom Volume backup workflow")
+![Alt text](https://github.com/sanket-bengali/aws-backup-step-functions/blob/master/images/Neo4j%20backup%20WF.png?raw=True "Custom Volume backup workflow")
 
 Execution of this state machine requires below input parameters (by Lambda functions) :
 
@@ -24,7 +24,7 @@ Execution of this state machine requires below input parameters (by Lambda funct
 
 2. Two AWS services backup (in parallel) workflow
 
-![Alt text](https://github.com/sanket-bengali/aws-backup-step-functions/blob/master/images/Myapp%20backup%20WF.png&raw=True "Custom volume and DB backup workflow")
+![Alt text](https://github.com/sanket-bengali/aws-backup-step-functions/blob/master/images/Myapp%20backup%20WF.png?raw=True "Custom volume and DB backup workflow")
 
 Execution of this state machine requires below input parameters (by Lambda functions) :
 

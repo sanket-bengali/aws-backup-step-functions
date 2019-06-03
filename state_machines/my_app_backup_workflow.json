@@ -1,0 +1,121 @@
+{
+  "StartAt": "Multiple Backups",
+  "States": {
+    "Multiple Backups": {
+      "Type": "Parallel",
+      "End": true,
+      "Branches": [
+      {
+        "StartAt": "Launch Pre script",
+        "States": {
+          "Launch Pre script": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:pre-script:$LATEST",
+            "ResultPath": "$.output_message",
+            "Next": "Launch Volume Snapshot"
+          },
+          "Launch Volume Snapshot": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:neo4j-volume-snapshot-launch:$LATEST",
+            "ResultPath": "$.volume_snapshot_id",
+            "Next": "Wait Two Seconds before getting Volume Snapshot status"
+          },
+          "Wait Two Seconds before getting Volume Snapshot status": {
+            "Type": "Wait",
+            "Seconds": 2,
+            "Next": "Get Volume Snapshot status"
+          },
+          "Get Volume Snapshot status": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:neo4j-volume-snapshot-status_check:$LATEST",
+            "ResultPath": "$.volume_snapshot_state",
+            "Next": "Check Volume Snapshot status"
+          },
+          "Check Volume Snapshot status": {
+            "Type" : "Choice",
+            "Choices": [
+            {
+              "Variable": "$.volume_snapshot_state",
+              "StringEquals": "pending",
+              "Next": "Wait Two Seconds before getting Volume Snapshot status"
+            },
+            {
+              "Or":[
+                {
+                  "Variable": "$.volume_snapshot_state",
+                  "StringEquals": "completed"
+                },
+                {
+                  "Variable": "$.volume_snapshot_state",
+                  "StringEquals": "error"
+                }
+              ],
+              "Next": "Launch Post script"
+            }
+          ]
+          },
+          "Launch Post script": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:post-script:$LATEST",
+            "ResultPath": "$.output_message",
+            "End": true
+          }
+        }
+      },
+      {
+        "StartAt": "Launch Postgres DB Pre script",
+        "States": {
+          "Launch Postgres DB Pre script": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:pre-script:$LATEST",
+            "ResultPath": "$.output_message",
+            "Next": "Launch DB Snapshot"
+          },
+          "Launch DB Snapshot": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:postgres-db-snapshot-launch:$LATEST",
+            "ResultPath": "$.db_instance_snapshot_id",
+            "Next": "Wait Two Seconds before getting DB Snapshot status"
+          },
+          "Wait Two Seconds before getting DB Snapshot status": {
+            "Type": "Wait",
+            "Seconds": 2,
+            "Next": "Get DB Snapshot status"
+          },
+          "Get DB Snapshot status": {
+            "Type": "Task",
+            "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:postgres-db-snapshot-status-check:$LATEST",
+            "ResultPath": "$.db_instance_snapshot_state",
+            "Next": "Check DB Snapshot status"
+          },
+          "Check DB Snapshot status": {
+            "Type" : "Choice",
+            "Choices": [
+            {
+              "Or":[
+              {
+                "Variable": "$.db_instance_snapshot_state",
+                "StringEquals": "available"
+              },
+              {
+                "Variable": "$.db_instance_snapshot_state",
+                "StringEquals": "failed"
+              }
+              ],
+              "Next": "Launch Postgres DB Post script"
+            }
+          ],
+          "Default": "Wait Two Seconds before getting DB Snapshot status"
+        },
+        "Launch Postgres DB Post script": {
+          "Type": "Task",
+          "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:post-script:$LATEST",
+          "ResultPath": "$.output_message",
+          "End": true
+        }
+      }
+    }
+  ]
+  }
+}
+}

@@ -1,0 +1,57 @@
+{
+  "StartAt": "Launch Pre script",
+  "States": {
+    "Launch Pre script": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:pre-script:$LATEST",
+      "ResultPath": "$.output_message",
+      "Next": "Launch Snapshot"
+    },
+    "Launch Snapshot": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:neo4j-volume-snapshot-launch:$LATEST",
+      "ResultPath": "$.volume_snapshot_id",
+      "Next": "Wait Two Seconds"
+    },
+    "Wait Two Seconds": {
+      "Type": "Wait",
+      "Seconds": 2,
+      "Next": "Get Snapshot status"
+    },
+    "Get Snapshot status": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:neo4j-volume-snapshot-status_check:$LATEST",
+      "ResultPath": "$.volume_snapshot_state",
+      "Next": "Check Snapshot status"
+    },
+    "Check Snapshot status": {
+      "Type" : "Choice",
+      "Choices": [
+        {
+          "Variable": "$.volume_snapshot_state",
+          "StringEquals": "pending",
+          "Next": "Wait Two Seconds"
+        },
+        {
+          "Or":[
+            {
+              "Variable": "$.volume_snapshot_state",
+              "StringEquals": "completed"
+            },
+            {
+              "Variable": "$.volume_snapshot_state",
+              "StringEquals": "error"
+            }
+          ],
+          "Next": "Launch Post script"
+        }
+      ]
+    },
+    "Launch Post script": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:<aws_region>:<aws_account_id>:function:post-script:$LATEST",
+      "ResultPath": "$.output_message",
+      "End": true
+    }
+  }
+}

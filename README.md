@@ -77,3 +77,6 @@ The state machines execute below [AWS Lambda functions](https://docs.aws.amazon.
    
    b. Copy the script to a temp directory in the EC2 instance, change its permissions and execute
 
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE) for more information.

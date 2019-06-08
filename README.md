@@ -45,7 +45,7 @@ Execution of this state machine requires below input parameters (by Lambda funct
 
 The state machines execute below [AWS Lambda functions](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html) for each step :
 
-### NOTE : These lambda functions can be packaged with a deployment package using Python's virtualenv as mentioned [here](https://aws.amazon.com/blogs/compute/scheduling-ssh-jobs-using-aws-lambda/)
+#### NOTE : These lambda functions can be packaged (including all libraries) with a deployment package using Python's virtualenv as mentioned [here](https://aws.amazon.com/blogs/compute/scheduling-ssh-jobs-using-aws-lambda/)
 
 1. pre_script_handler.py
 
